@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="10 seconds" debug="false">
+
+    <!-- 将日志输出在当前项目的根目录下 -->
+    <property name="contextPath" value="./logs"/>
+	<!-- 日志的上下文路径 -->
+    <property name="logPath" value="${contextPath}"/>
+    <!-- 日志文件保留天数 -->
+	<property name="maxHistory" value="10"/>
+	
+	<!-- 打印日志到控制台 -->
+    <appender name="rootConsole" class="ch.qos.logback.core.ConsoleAppender">
+    	<!-- encoder 在控制台打印日志的格式 -->  
+        <encoder>
+            <pattern>[XD][%4p] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{0}#%M:%L - %m%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="rootRollingInfo" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${logPath}/info/info.log</File>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${logPath}/info/info-%d{yyyy-MM-dd}_%i.log</fileNamePattern>
+            <!--控制被保留的归档文件的最大数量，超出数量就删除旧文件。-->
+            <maxHistory>${maxHistory}</maxHistory>
+            <timeBasedFileNamingAndTriggeringPolicy
+                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <!-- or whenever the file size reaches 100MB -->
+                <maxFileSize>100MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder>
+            <pattern>[ZX][%5p] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{0}#%M:%L - %m%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <!--
+         	LevelFilter:严格限制日志的输出级别,使用LevelFilter设置,只会在文件中出现级别为INFO级别的日志内容。
+         --> 
+       <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>INFO</level>
+            <onMatch>ACCEPT</onMatch>  
+    		<onMismatch>ACCEPT</onMismatch>
+        </filter>
+    </appender>
+
+    <!--
+    	定义日志的输出方式:输出在文件夹error.log文件中
+    	配置所有类ERROR级别的滚动日志
+    -->
+    <appender name="rootRollingError" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${logPath}/error/error.log</File>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${logPath}/error/error-%d{yyyy-MM-dd}_%i.log</fileNamePattern>
+            <!-- 设置日志的滚动时间 -->
+            <maxHistory>${maxHistory}</maxHistory>
+            <timeBasedFileNamingAndTriggeringPolicy
+                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <!-- or whenever the file size reaches 100MB -->
+                <maxFileSize>20MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>>
+        </rollingPolicy>
+        <encoder>
+            <pattern>[XD][%4p] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{0}#%M:%L - %m%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <!-- error.log文件中的日志级别是 ERROR以上的级别 -->
+       <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+    		<onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+	
+    <!-- 默认打印级别 -->
+     <root level="INFO">           
+  		<appender-ref ref="rootConsole"/> 
+		<appender-ref ref="rootRollingInfo"/>
+        <appender-ref ref="rootRollingError"/>
+  	</root> 
+  
+   <!-- name:用来指定受此loger约束的某一个包或者具体的某一个类。
+   		level:代表强制执行上级的级别 TRACE < DEBUG < INFO < WARN < ERROR
+        addtivity:是否向上级loger传递打印信息。默认是true (是loger的优先级高于root)-->
+	<logger name="com" level="DEBUG" additivity="false">
+		<appender-ref ref="rootConsole"/> 
+		<appender-ref ref="rootRollingInfo"/>
+        <appender-ref ref="rootRollingError"/>
+    </logger>
+    
+</configuration>
